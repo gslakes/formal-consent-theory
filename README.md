@@ -22,4 +22,4 @@ by the following command line, run from the base directory of a copy of this cod
 Other systems can be tested by replacing `naive_consent_theory.in` in the above command line with the
 file name of the system to be tested.
 
-For further assistance or feedback, please contact the author via lakes<dot>gs<at>gmail<dot>com
+For further assistance or feedback, please contact the author via lakes`dot`gs`at`gmail`dot`com
