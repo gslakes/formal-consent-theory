@@ -1,0 +1,240 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Naive consent theory-based machine ethics
+%
+%
+% This file contains a simplistic/naive machine ethics system based on consent theory concepts,
+% and implemented in Prover 9's first-order logic dialect. 
+%
+% Included is a set of test cases to check the system for consistency with known ethical/unethical
+% behaviour.
+%
+% (These are not conclusive/exhaustive tests; they're just to demonstrate how the system works.)
+%
+%
+% NOTE: This file is designed to be run through a Python-based test runner called
+%       'run_as_prover9_test_suite.py', and will not work as intended if run in Prover 9 outside
+%       the test runner.
+%
+%       The tests in this file may be run using the following command line:
+%
+%       python run_as_prover9_test_suite.py naive_consent_theory.in
+%
+%       Individual tests may be run using the following command line:
+%
+%       python run_as_prover9_test_suite.py naive_consent_theory.in asking_and_giving_consent_is_ethical
+%%%
+
+%%%%%%%%%%%%%%%%%%
+% Prover 9 set up.
+%
+% This is shared with all tests.
+%%%
+
+% With Prolog style variables set, uppercase symbols (e.g. 'A', 'B', 'X') represent variables;
+% lowercase symbols (e.g. 'alex', 'harm') represent constants.
+set(prolog_style_variables).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Modelling of consent theory.
+%
+% This is shared with all tests.
+%
+%%%
+
+formulas(usable).
+
+% Define an ethical action as first asking for consent, getting that consent, then doing that action.
+((do(A, B, ask_for_consent(A, B, X)) & do(B, A, consent(A, B, X)) & do(A, B, X)) -> ethical(A, B, X)) # label(ethical_action_definition).
+
+% Define an unethical action as one which is done without first asking for consent, or having consent.
+do(A, B, X) -> -ethical(A, B, X) # label(unethical_action_definition).
+
+% It is always ethical to ask for consent.
+ethical(A, B, ask_for_consent(A, B, X)) # label(the_act_of_asking_for_consent_is_ethical).
+
+% It is always ethical to consent.
+ethical(A, B, consent(B, A, X)) # label(consenting_is_ethical).
+
+% It is always ethical to not consent.
+ethical(A, B, -consent(B, A, X)) # label(not_consenting_is_ethical).
+
+end_of_list.
+
+%%%%%%%%%%%%%%
+% Test suite.
+%
+% Contains known ethical/unethical behaviours, and the decisions the modelling above should make about these
+% behaviours.
+
+% Test runner: begin tests.
+%
+% (This is a directive to the test runner to slice up the following 'Test case:' delineated
+%  sections, and runs them separately through Prover 9, storing the resulting output in a results/
+%  directory, and collating the results in a JUnit/phpUnit-style display.)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% General consent theory principles.
+%
+% The names used in these tests (e.g. alex, bo) are intended to be gender-neutral and/or role-appropriate.
+%%%
+
+
+% Test case: asking_for_consent_is_ethical
+%
+% It is ethical to ask for consent.
+
+formulas(goals).
+do(alex, bo, ask_for_consent(alex, bo, action)) -> ethical(alex, bo, ask_for_consent(alex, bo, action))
+# answer(asking_for_consent_is_ethical).
+end_of_list.
+
+% Test case: asking_and_getting_consent_is_ethical
+%
+% Asking for consent and getting it is ethical for the person asking.
+
+formulas(goals).
+(do(alex, bo, ask_for_consent(alex, bo, action)) & do(bo, alex, consent(alex, bo, action))) -> ethical(alex, bo, ask_for_consent(alex, bo, action))
+# answer(asking_and_getting_consent_is_ethical).
+end_of_list.
+
+% Test case: asking_and_giving_consent_is_ethical
+%
+% Asking for consent and giving it is ethical for the person asked.
+
+formulas(goals).
+(do(alex, bo, ask_for_consent(alex, bo, action)) & do(bo, alex, consent(alex, bo, action))) -> ethical(bo, alex, consent(alex, bo, action))
+# answer(asking_and_giving_consent_is_ethical).
+
+% Test case: asking_and_not_getting_consent_is_ethical
+%
+% Asking for consent and not giving it is ethical for the person asking.
+
+formulas(goals).
+(do(alex, bo, ask_for_consent(alex, bo, action)) & do(bo, alex, -consent(alex, bo, action))) -> ethical(alex, bo, ask_for_consent(alex, bo, action))
+# answer(asking_and_not_getting_consent_is_ethical).
+end_of_list.
+
+% Test case: asking_and_not_giving_consent_is_ethical
+%
+% Asking for consent and not giving it is ethical for the person asked.
+
+formulas(goals).
+(do(alex, bo, ask_for_consent(alex, bo, action)) & do(bo, alex, -consent(alex, bo, action))) -> ethical(bo, alex, -consent(alex, bo, action))
+# answer(asking_and_not_giving_consent_is_ethical).
+end_of_list.
+
+% Test case: ignoring_consent_negative_responses_is_unethical
+%
+% Ignoring consent-negative responses is unethical.
+
+formulas(goals).
+(do(A, B, ask_for_consent(A, B, X)) & do(B, A, -consent(B, A, X)) & do(A, B, X)) -> ethical(A, B, ask_for_consent(A, B, X)) & -ethical(A, B, X) & ethical(B, A, -consent(B, A, X))
+# answer(ignoring_consent_negative_responses_is_unethical).
+end_of_list.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Murder versus euthanasia.
+%%%
+
+% Test case: not_consenting_to_killing_is_ethical
+%
+% Murder: it is ethical to not consent to be killed.
+
+formulas(goals).
+do(victim, murderer, -consent(murderer, victim, kill)) -> ethical(victim, murderer, -consent(murderer, victim, kill))
+# answer(not_consenting_to_killing_is_ethical).
+end_of_list.
+
+% Test case: consenting_to_killing_is_ethical
+%
+% Euthanasia: it is ethical to consent to be killed.
+
+formulas(goals).
+do(patient, doctor, consent(doctor, patient, kill)) -> ethical(patient, doctor, consent(doctor, patient, kill))
+# answer(consenting_to_killing_is_ethical).
+end_of_list.
+
+
+% Test case: killing_without_consent_is_unethical
+%
+% Murder: killing without consent is unethical.
+
+formulas(goals).
+do(murderer, victim, kill) -> -ethical(murderer, victim, kill)
+# answer(killing_without_consent_is_unethical).
+end_of_list.
+
+% Test case: killing_with_explicit_non_consent_is_unethical
+%
+% Murder: killing with explicit lack of consent is unethical.
+
+formulas(goals).
+(do(victim, murderer, -consent(victim, murderer, kill)) & do(murderer, victim, kill)) -> -ethical(murderer, victim, kill)
+# answer(killing_with_explicit_non_consent_is_unethical).
+end_of_list.
+
+% Test case: killing_with_explicit_consent_is_ethical
+%
+% Euthanasia: killing with explicit consent is ethical.
+
+formulas(goals).
+(do(doctor, patient, ask_for_consent(doctor, patient, kill)) & do(patient, doctor, consent(doctor, patient, kill)) & do(doctor, patient, kill)) -> ethical(doctor, patient, kill)
+# answer(killing_with_explicit_consent_is_ethical).
+end_of_list.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Assault versus consensual harm. (i.e. medicine, kink.)
+%%%
+
+
+% Test case: not_consenting_to_harm_is_ethical
+%
+% Assault: It is ethical to not consent to harm.
+
+formulas(goals).
+do(victim, assailant, -consent(assailant, victim, harm)) -> ethical(victim, assailant, -consent(assailant, victim, harm))
+# answer(not_consenting_to_harm_is_ethical).
+end_of_list.
+
+% Test case: consenting_to_harm_is_ethical
+%
+% Consensual harm: It is ethical to consent to harm.
+
+formulas(goals).
+do(recipient, assailant, consent(assailant, recipient, harm)) -> ethical(recipient, assailant, consent(assailant, recipient, harm))
+# answer(consenting_to_harm_is_ethical).
+end_of_list.
+
+
+% Test case: harm_without_consent_is_unethical
+% 
+% Assault: harm without consent is unethical.
+
+formulas(goals).
+do(assailant, victim, harm) -> -ethical(assailant, victim, harm)
+# answer(harm_without_consent).
+end_of_list.
+
+% Test case: harm_with_explicit_non_consent_is_unethical
+%
+% Assault: harm with explicit non-consent is unethical.
+
+formulas(goals).
+(do(victim, assailant, -consent(assailant, victim, harm)) & do(assailant, victim, harm)) -> -ethical(assailant, victim, harm)
+# answer(harm_with_explicit_non_consent_is_unethical).
+end_of_list.
+
+% Test case: harm_with_explicit_consent_is_ethical
+%
+% Consensual harm: harm with explicit consent is ethical. (i.e. medicine, kink.)
+
+formulas(goals).
+(do(assailant, recipient, ask_for_consent(assailant, recipient, harm)) & do(recipient, assailant, consent(assailant, recipient, harm)) & do(assailant, recipient, harm)) -> ethical(assailant, recipient, harm)
+# answer(harm_with_explicit_consent_is_ethical).
+end_of_list.
+
+%
+% Test runner: end tests.
+%
