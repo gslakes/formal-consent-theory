@@ -125,7 +125,7 @@ Planned features
 
  - modelling various physical, psychological/emotional, political and social agencies, and testing
    these against scenarios brainstormed with fellow participants of a Queensland Association for
-   Healthy Communities (QAHC, http://qahc.org) healthy relationships, consent, and violence
+   Healthy Communities (QAHC, http://qahc.org.au) healthy relationships, consent, and violence
    workshop.
 
 
