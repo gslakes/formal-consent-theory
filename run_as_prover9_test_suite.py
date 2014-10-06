@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Usage: python run_as_prover9_test_suite.py [-n|--dry-run] [-v|--verbose] <Prover 9 input file to test> [<tests to run>]*
 
-Processes the given Prover 9 input file (e.g. input.in), searching for test case markup that denotes
+Processes the given Prover9 input file (e.g. input.in), searching for test case markup that denotes
 separate tests for a central model or theorem.
 
 Usage examples:
@@ -27,6 +27,16 @@ Markup description:
                                          negated/inverted, with successful proof of any conjectures indicating
                                          failure of the test.
  - '% Test case: this_is_the_first_test' denotes a test case with name 'this_is_the_first_test'.
+
+
+Prover installation:
+
+This script assumes the Prover9 prover (http://www.cs.unm.edu/~mccune/mace4/) is installed with binary at
+usr/bin/prover9
+
+This can be done on Debian/Ubuntu systems with the following command:
+
+    sudo aptitude install prover9
 
 """
 

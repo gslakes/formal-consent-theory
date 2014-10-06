@@ -31,8 +31,8 @@ Markup description:
 
 Prover installation:
 
-- assumes the E prover (http://www4.informatik.tu-muenchen.de/~schulz/E/E.html) is compiled and
-  installed in-place under /home/E/, with binary at /home/E/PROVER/eprover
+This script assumes that the E prover (http://www4.informatik.tu-muenchen.de/~schulz/E/E.html) is compiled and
+installed in-place under /home/E/, with binary at /home/E/PROVER/eprover
 
 (Other provers could be used in place of the E prover, thanks to the wide adoption of the TPTP format,
  however, success and failure detection in this script is customised for the output of E prover.)
