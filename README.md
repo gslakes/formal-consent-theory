@@ -52,8 +52,7 @@ Q. Why first-order logic, and not a modal logic, like formal ethics, or another 
 A.
 
 First-order logic makes specifying state easier (if with some loss of clarity in temporal
-reasoning), and is widely support by automated proof/reasoning tools, such as the automated
-theorem prover, `Prover 9`, and the associated model checker, `Mace 4`, which this project uses.
+reasoning), and is widely support by a large number of automated proof/reasoning tools.
 
 The availability of these tools makes checking safety properties significantly easier, which is
 important in systems which, one day, may make life or death decisions.
@@ -136,22 +135,36 @@ Planned features
 Getting started
 ---------------
 
-The `.in` files in this code repository contain machine-readable theories and automated tests.
-These are for use with the Prover 9 (http://www.cs.unm.edu/~mccune/mace4/)
+The `.in` and `.tptp` files in this code repository contain machine-readable theories and automated tests.
+
+
+The `.in` files are for use with the Prover9 (http://www.cs.unm.edu/~mccune/mace4/)
 automated theorem prover via a Python-based test suite runner provided in this code repository,
 `run_as_prover9_test_suite.py`.
 
-It is recommended to get started by studying the demonstration system in `naive_consent_theory.in`,
-which contains a simplistic/'naive' formalisation of consent theory-based ethics.
+The `.tptp` files are versions of the same theories and tests for use with TPTP-compatible provers, and may
+be used with a similar test runner, `run_as_tptp_test_suite.py`, which uses the TPTP-compatible
+E prover (http://www.eprover.org) as its prover.
 
-On a Linux/Unix machine with Prover 9 and a Python interpreter installed, this system may be tested
-by the following command line, run from the base directory of a copy of this code repository:
 
-    python run_as_prover9_test_suite.py naive_consent_theory.in
+It is recommended to get started by studying the demonstration system in `naive_consent_theory.tptp`
+(or identically in `naive_consent_theory.in`), which contains a simplistic/'naive' formalisation of
+consent theory-based ethics.
 
-Other systems can be tested by replacing `naive_consent_theory.in` in the above command line with the
-file name of the system to be tested.
 
+For the quickest start, copying definitions and individual test cases from the TPTP version of this
+demonstration system into web-based System on TPTP prover at
+
+    http://www.cs.miami.edu/~tptp/cgi-bin/SystemOnTPTP
+
+should allow basic exploration of the system without needing to install a prover.
+
+
+For more in-depth/protracted use, installation of either Prover9 or E prover and the use of the test runners
+is highly recommended, as this is a far more convient way to test any trial modifications you may
+wish to make. (This also avoids taxing the resources of the generous people running System on TPTP.)
+
+Please see the instructions in either test runner for further installation and use instructions.
 
 
 Contact the author
