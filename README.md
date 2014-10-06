@@ -153,7 +153,7 @@ consent theory-based ethics.
 
 
 For the quickest start, copying definitions and individual test cases from the TPTP version of this
-demonstration system into web-based System on TPTP prover at
+demonstration system into the web-based System on TPTP prover at
 
     http://www.cs.miami.edu/~tptp/cgi-bin/SystemOnTPTP
 
@@ -164,7 +164,7 @@ For more in-depth/protracted use, installation of either Prover9 or E prover and
 is highly recommended, as this is a far more convient way to test any trial modifications you may
 wish to make. (This also avoids taxing the resources of the generous people running System on TPTP.)
 
-Please see the instructions in either test runner for further installation and use instructions.
+Please see the documentation at the start of either test runner for further installation and use instructions.
 
 
 Contact the author
