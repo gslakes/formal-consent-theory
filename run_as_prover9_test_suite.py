@@ -1,15 +1,31 @@
-#!/bin/env python
+#!/usr/bin/env python
 """Usage: python run_as_prover9_test_suite.py [-n|--dry-run] [-v|--verbose] <Prover 9 input file to test> [<tests to run>]*
 
 Processes the given Prover 9 input file (e.g. input.in), searching for test case markup that denotes
 separate tests for a central model or theorem.
 
+Usage examples:
+
+   Run all the tests in a theory file named naive_consent_theory.in:
+
+       python run_as_prover9_test_suite.py naive_consent_theory.in
+
+
+   Run an individual test case from that theory file named asking_and_getting_consent_is_ethical:
+
+       python run_as_prover9_test_suite.py naive_consent_theory.in asking_and_getting_consent_is_ethical
+
+
 Markup description:
 
- - '% Test runner: begin tests.' denotes the beginning of the section(s) which will be split into test cases.
- - '% Test runner: end tests.' denotes the end of the sections(s) which will be split into test cases.
- - '% Test case: ' denotes the beginning of a new test case, which will span until any markup line
-                   is seen. Any text following it will be interpreted as the name of the test case.
+ - '% Test runner: begin tests.'         denotes the beginning of the section(s) which will be split into test cases.
+ - '% Test runner: end tests.'           denotes the end of the sections(s) which will be split into test cases.
+ - '% Test case: '                       denotes the beginning of a new test case, which will span until any markup
+                                         line is seen. Any text following it will be interpreted as the name of the
+                                         test case.
+ - '% Negated test case: '               denotes the beginning of a test case where the test result should be
+                                         negated/inverted, with successful proof of any conjectures indicating
+                                         failure of the test.
  - '% Test case: this_is_the_first_test' denotes a test case with name 'this_is_the_first_test'.
 
 """
@@ -121,9 +137,10 @@ def run_test_cases(test_cases = {}, tests_to_run = [], test_results_path = os.cu
         # end try
     # end if
 
-    # Collect a list of failed and erroneous test cases, storing the status and the names of the files
+    # Collect a list of test cases we're interested in the details for, storing the status and the names of the files
     # containing the run result.
-    test_cases_with_problems = []
+    test_case_details_to_display = []
+    test_results = ""
 
     # Print a header for the results.
     sys.stdout.write("Test results:\n\n")
@@ -134,41 +151,75 @@ def run_test_cases(test_cases = {}, tests_to_run = [], test_results_path = os.cu
         # FIXME: generate a file name for the results of each test, validate test cases, tests_to_run, etc.
 
         test_case = test_cases.get(test_case_name, {})
+        negated = test_case.get('negated', False)
         status = run_test_case(test_case = test_case,
                                non_test_matter = non_test_matter, result_filename = result_filename,
                                dry_run = dry_run, verbosity = verbosity)
 
+        # Invert the status if this is a negated test case.
+        if negated:
+            if status == 'S':
+               status = 'F'
+            elif status == 'F':
+               status = 'S'
+            # end if
+        # end if
+
         # Display a JUnit/unittesting style symbol to indicate whether this test succeed, failed, or was erroneous.
         if status == 'S':
+            test_results += '.'
             sys.stdout.write('.')
+            if verbosity > 1:
+                test_case_details_to_display.append((test_case_name, status, result_filename))
+            # end if
         else:
+            test_results += status
             sys.stdout.write(status)
-            test_cases_with_problems.append((test_case_name, status, result_filename))
+            test_case_details_to_display.append((test_case_name, status, result_filename))
         # end if
     # end for
 
-    sys.stdout.write("\n\nTest run complete.\n\n")
+    sys.stdout.write("\n\n")
 
-    # Now display any failed or erroneous tests, with relevant details.
-    for (test_case_name, status, result_filename) in test_cases_with_problems:
+    # Now display the details of any recorded test cases.
+    for (test_case_name, status, result_filename) in test_case_details_to_display:
         # Get the relevant details for this test case.
         line_count = test_cases[test_case_name]['line']
         index = test_cases[test_case_name]['index']
         text = test_cases[test_case_name]['text']
+        negated = test_cases[test_case_name]['negated']
 
         # If the user wants minimally verbose output, we want to display relevant detail from the test
         # results according to what status this test case had.
         results = ""
+        status_message = "had ERRORS"
+        if negated:
+            if status == 'F':
+                status_message = "unintentionally/undesirably succeeded"
+            elif status == 'S':
+                status_message = "failed as intended"
+            # end if
+        else:
+            if status == 'F':
+                status_message = "FAILED"
+            elif status == 'S':
+                status_message = "succeeded"
+            # end if
+        # end if
         if verbosity > 0:
             results_file = open(result_filename, 'r')
-            if status == 'F':
-                # If this test case failed, the user wants to see the failed test case text, and
+            if status == 'E' or verbosity > 2:
+                # If there was an error (or we're being very verbose), the user wants to see the whole file.
+                # Read in everything.
+                results = results_file.read()
+            elif status == 'F' or verbosity > 1:
+                # If this test case failed (or the verbosity is high), the user wants to see the test case text, and
                 # the search results.
                 # Read in the results of the run, skipping everything but the search section, and
                 # what follows that.
                 results += text
                 in_search_results = False
-                search_section = re.compile('=+\s*SEARCH\s*=+', re.IGNORECASE)
+                search_section = re.compile('=+\s*CLAUSES FOR SEARCH\s*=+', re.IGNORECASE)
                 for line in results_file:
                     if not in_search_results:
                         if search_section.match(line) != None:
@@ -179,17 +230,13 @@ def run_test_cases(test_cases = {}, tests_to_run = [], test_results_path = os.cu
                         results += line
                     # end if
                 # end for
-            else:
-                # If there was an error, the user wants to see the whole file.
-                # Read in everything.
-                results = results_file.read()
-             # end if
+            # end if
             results_file.close()
         # end if
 
         # Now format these details.
         sys.stdout.write("Test case #%s named '%s' at line %s %s.\n" % \
-              (index, test_case_name, line_count, "FAILED" if status == 'F' else "had ERRORS"))
+              (index, test_case_name, line_count, status_message))
 
         # If the user wants verbose output, display the test results we retrieved earlier.
         if verbosity > 0:
@@ -197,7 +244,16 @@ def run_test_cases(test_cases = {}, tests_to_run = [], test_results_path = os.cu
             sys.stdout.write(results)
         # end if
         sys.stdout.write("\n\n")
-   # end for
+    # end for
+
+    # If there were test cases with problems, summarise the results again for clarity.
+    if len(test_case_details_to_display) > 0:
+        # Print a header for the results.
+        sys.stdout.write("Test results:\n\n")
+        sys.stdout.write(test_results)
+    # end if
+
+    sys.stdout.write("\n\nTest run complete.\n\n")
 # end def
 
 def run_test_suite(input_filename = "", tests_to_run = [], dry_run = False, verbosity = 0):
@@ -259,7 +315,7 @@ def split_prover9_input(input_filename, dry_run = False, verbosity = 0):
     # Compile some regular expressions for speed.
     # (These describe the markup describe earlier.)
     begin_test_section = re.compile('\s*%\s*Test\s*runner\s*:?\s*begin', re.IGNORECASE)
-    test_case = re.compile('\s*%\s*Test\s*case\s*:?\s*(?P<name>.*)\s*$', re.IGNORECASE)
+    test_case = re.compile('\s*%\s*(?P<negated>Negated)?\s*[tT]est\s*case\s*:?\s*(?P<name>.*)\s*$', re.IGNORECASE)
     end_test_section = re.compile('\s*%\s*Test\s*runner\s*:?\s*end', re.IGNORECASE)
 
     # Read the file in, line by line.
@@ -277,6 +333,7 @@ def split_prover9_input(input_filename, dry_run = False, verbosity = 0):
         # Check for markup in the current line.
         test_case_match = test_case.match(line)
         disposable_line = False
+        negated = False
         if test_case_match != None:
             # We have a new test case.
 
@@ -301,10 +358,16 @@ def split_prover9_input(input_filename, dry_run = False, verbosity = 0):
                 sys.exit(1)
             # end if
 
+            # Check if this test case is expected to fail.
+            if test_case_match.group('negated') != None:
+                negated = True
+            # end if
+
             # Store some useful properties in the test case dictionary under the current test name as a key.
             test_cases[current_test_name] = {}
             test_cases[current_test_name]['index'] = current_test_count
             test_cases[current_test_name]['line'] = line_count
+            test_cases[current_test_name]['negated'] = negated
 
             # Set some blank initial text for this test.
             test_cases[current_test_name]['text'] = ""
@@ -330,7 +393,7 @@ def split_prover9_input(input_filename, dry_run = False, verbosity = 0):
             in_test = False
             disposable_line = True
         # end if
-        
+
         # Dispatch the text of this line depending on what flags are currently set.
         if not disposable_line:
             # This is a non-disposable line.
