@@ -123,6 +123,9 @@ Planned features
  - a treatment of the impact of power/privilege/knowledge/agency disparity on ethical behaviour,
    if previous features don't supply this result already.
 
+ - a treatment of privacy, for individuals and organisations, if previous features don't supply
+   this result already.
+
  - modelling various physical, psychological/emotional, political and social agencies, and testing
    these against scenarios brainstormed with fellow participants of a Queensland Association for
    Healthy Communities (QAHC, http://qahc.org.au) healthy relationships, consent, and violence
