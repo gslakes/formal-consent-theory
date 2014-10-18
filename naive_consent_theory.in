@@ -145,7 +145,7 @@ end_of_list.
 
 % Negated test case: asking_and_not_getting_consent_is_not_unethical
 %
-% Asking for consent and not getting it should not be proven unethical for the person asking if they then don't act,
+% Asking for consent and not getting it should not be proven unethical for the person asking if they then don't act.
 
 formulas(goals).
 (
@@ -217,7 +217,7 @@ end_of_list.
 
 % Negated test case: killing_without_consent_is_not_ethical
 %
-% Murder: killing without consent should not be prove to be ethical.
+% Murder: killing without consent should not be proven to be ethical.
 
 formulas(goals).
 (
