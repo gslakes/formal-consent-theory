@@ -1,0 +1,311 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Consent-theory-based machine ethics
+%
+%
+% This file contains an (in progress) machine ethics system based on consent theory concepts, combined with
+% an harm-minimisation utilitarian ethic (as measured by impact on agency) for selecting the least
+% worst outcome.
+%
+% This system is implemented in Prover 9's first-order predicate logic dialect.
+%
+% Included is a set of test cases to check the system for consistency with known ethical/unethical
+% behaviour.
+%
+% NOTE: This file is designed to be run through the (supplied) Python-based test runner called
+%
+%         'run_as_prover9_test_suite.py'
+%
+%       which requires the Prover9 prover:
+%
+%         http://www.cs.unm.edu/~mccune/mace4/
+%
+%       to be installed at /usr/bin/prover9 which can be done on Debian/Ubuntu with:
+%
+%         sudo aptitude install prover9
+%
+%       The tests in this file may be run using the following command line:
+%
+%         python run_as_prover9_test_suite.py consent_theory.in
+%
+%       Individual tests may be run using the following command line:
+%
+%         python run_as_prover9_test_suite.py consent_theory.in asking_and_getting_consent_is_ethical
+%%%
+
+%%%%%%%%%%%%%%%%%%
+% Prover 9 set up.
+%
+% This is shared with all tests.
+%%%
+
+% With Prolog style variables set, uppercase symbols (e.g. 'A', 'B', 'X') represent variables;
+% lowercase symbols (e.g. 'alex', 'harm') represent constants.
+set(prolog_style_variables).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Modelling of consent theory.
+%
+% This is shared with all tests.
+%
+% Modelling to-do:
+%
+% - a positive-consent-only model of consent.
+%
+%   (i.e. the absence of a negative consent response does not grant consent, nor does willingness alone.)
+%
+% - time-aware consent reasoning, with interactions having time spans, revocation of prior
+%   consent grants (including revocation mid-action), and recognition of the temporary nature
+%   of consent.
+%
+%   (i.e. that barring explicitly-negotiated, multiple-interaction-spanning consent grants, each
+%   new interaction creates a new obligation for a new consent grant.)
+%
+% - a multi-mode consent grant model e.g. directly communicated consent, legal instruments,
+%   consent by proxy.
+%
+% - modelling autonomy/self-determination/capability (`agency`) as part of a person's `state`,
+%   with harm defined as an impact on that agency.
+%
+%   (This is to allow choice of the most ethical course of action in multiple-choice scenarios.)
+%
+% - consent modelled as an agency, with the goal of permitting only interactions that improve
+%   consent agency when the ability to consent is impaired, where prior consent doesn't exist.
+%
+% - a general model of informed consent by adding (doxastic/Smullyan-style) knowledge/`belief`
+%   statements about the (known/assumed) harm of an interaction to the state observed by the system.
+%
+%   (e.g. if a disparity in the knowledge/belief of the harm of an interaction exists,
+%    the more accurately this information is conveyed, the greater the degree of ethical
+%    behaviour deemed obtained by the initiator, if they had the greater knowledge beforehand.)
+%
+% - special treatment of core agencies such as consent (and other agencies that uncoerced/informed
+%   consent depends upon, e.g. living, communicating, reasoning, learning) in interaction
+%   comparisons, so that paternalistic/consent-overriding interactions (where consent is not
+%   granted and would be possible to obtain) that would technically result in a net gain of agency
+%   are considered unethical.
+%
+% - modelling self-directed interactions and harm (i.e. where the ethical system is a direct actor.)
+%
+% - a treatment of harassment/repetition-based harm, if previous features don't supply this
+%   result already.
+%
+% - a treatment of the impact of power/privilege/knowledge/agency disparity on ethical behaviour,
+%   if previous features don't supply this result already.
+%
+% - a treatment of privacy, for individuals and organisations, if previous features don't supply
+%   this result already.
+%
+% - a way to encourage honest and clear communication.
+%
+% - a way to encourage early and ongoing discovery of potential harms and agency reductions (to
+%   avoid bypassing honesty restrictions by not thinking about/discovery harm/agency impact)
+%   and communicating these discoveries as part of the consent seeking process, and as these
+%   discoveries are made.
+%
+% - modelling various physical, psychological/emotional, political and social agencies, and testing
+%   these against scenarios brainstormed with fellow participants of a Queensland Association for
+%   Healthy Communities (QAHC, http://qahc.org.au) healthy relationships, consent, and violence
+%   workshop.
+%
+%%%
+
+%%%%%%%%%%%%%%
+% Test suite.
+%
+% Contains known ethical/unethical behaviours, and the decisions the modelling above should make about these
+% behaviours.
+%
+%
+% Test suite to-do:
+%
+% - long-term consent grants.
+%
+% - self-on-self consent and self-harm.
+%
+% - the agency to (not) consent must be present for an interaction to be ethical.
+%
+% - agency reduction/addition with and without consent.
+%
+% - harassment, especially harassing people with repeated requests for consent, after a refusal has
+%   been given.
+%
+% - emergency medical care/consent-impaired situations.
+%
+% - overriding consent for the sake of net agency gain (i.e. paternalism).
+%
+% - social and psychological harms.
+%
+% - harm minimisation/agency maximisation multiple-choice tests.
+%
+% - tampering with the system (if this can be modelled) to hijack consent-asking, informed consent, or
+%   personhood determination.
+%
+% - source other test ideas from consent workshop notes and wider community consent discussions.
+%
+% - test reasoning when a person's agency set is unknown, as well as other uncertain/minimal/no information cases.
+%
+% - test cases involving bribery/coercion/manipulation where the other's reasoning may be incomplete about
+%   agency outcomes; e.g. knowing a person wants a result X, offering them Y that gives X, but decreases agency overall.
+
+
+% Test runner: begin tests.
+%
+% (This is a directive to the test runner to slice up the following 'Test case:' delineated
+%  sections, and runs them separately through Prover 9, storing the resulting output in a results/
+%  directory, and collating the results in a JUnit/phpUnit-style display.)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% General consent theory principles.
+%
+% The names used in these tests (e.g. alex, bo) are intended to be gender-neutral and/or role-appropriate.
+%%%
+
+% Test case: no_interactions_no_change
+%
+% If there are no interactions, nothing changes.
+
+% Test case: doing_nothing_to_a_person_is_ethical
+%
+% It is ethical to do nothing to a person.
+
+% Negated test case: doing_nothing_to_a_person_is_not_unethical
+%
+% It should not be proven to be unethical to do nothing to a person.
+
+% Test case: asking_for_consent_is_ethical
+%
+% It is ethical to ask for consent.
+
+% Test case: asking_and_getting_consent_is_ethical
+%
+% Asking for consent and getting it is ethical for the person asking.
+
+% Negated test case: asking_and_getting_consent_is_not_unethical
+%
+% Asking for consent and getting it should not be proven to be unethical for the person asking.
+
+% Test case: asking_and_giving_consent_is_ethical
+%
+% Asking for consent and giving it is ethical for the person asked.
+
+% Negated test case: asking_and_giving_consent_is_not_unethical
+%
+% Asking for consent and giving it should not be proven to be unethical for the person asked.
+
+% Test case: asking_and_not_getting_consent_is_ethical
+%
+% Asking for consent and not getting it is ethical for the person asking if they then don't act.
+
+% Negated test case: asking_and_not_getting_consent_is_not_unethical
+%
+% Asking for consent and not getting it should not be proven unethical for the person asking if they then don't act.
+
+% Test case: asking_and_not_giving_consent_is_ethical
+%
+% Asking for consent and not giving it is ethical for the person asked.
+
+% Negated test case: asking_and_not_giving_consent_is_not_unethical
+%
+% Asking for consent and not giving it should not be proven unethical for the person asked.
+
+% Test case: ignoring_consent_negative_responses_is_unethical
+%
+% Ignoring consent-negative responses is unethical.
+
+% Negated test case: ignoring_consent_negative_responses_is_not_ethical
+%
+% Ignoring consent-negative responses should not be proven to be ethical.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Murder versus euthanasia.
+%%%
+
+% Test case: not_consenting_to_killing_is_ethical
+%
+% Murder: it is ethical to not consent to be killed.
+
+% Negated test case: not_consenting_to_killing_is_not_unethical
+%
+% Murder: it should not be proven to be unethical to not consent to be killed.
+
+% Test case: consenting_to_killing_is_ethical
+%
+% Euthanasia: it is ethical to consent to be killed.
+
+% Negated test case: consenting_to_killing_is_not_unethical
+%
+% Euthanasia: it should not be proven to be unethical to consent to be killed.
+
+% Test case: killing_without_consent_is_unethical
+%
+% Murder: killing without consent is unethical.
+
+% Negated test case: killing_without_consent_is_not_ethical
+%
+% Murder: killing without consent should not be proven to be ethical.
+
+% Test case: killing_with_explicit_non_consent_is_unethical
+%
+% Murder: killing with explicit lack of consent is unethical.
+
+% Negated test case: killing_with_explicit_non_consent_is_not_ethical
+%
+% Murder: killing with explicit lack of consent should not be proven to be ethical.
+
+% Test case: killing_with_explicit_consent_is_ethical
+%
+% Euthanasia: killing with explicit consent is ethical.
+
+% Negated test case: killing_with_explicit_consent_is_not_unethical
+%
+% Euthanasia: killing with explicit consent should not be proven to be unethical.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Assault versus consensual harm. (i.e. medicine, kink.)
+%%%
+
+% Test case: not_consenting_to_harm_is_ethical
+%
+% Assault: It is ethical to not consent to harm.
+
+% Negated test case: not_consenting_to_harm_is_not_unethical
+%
+% Assault: It should not be proven unethical to not consent to harm.
+
+% Test case: consenting_to_harm_is_ethical
+%
+% Consensual harm: It is ethical to consent to harm.
+
+% Negated test case: consenting_to_harm_is_not_unethical
+%
+% Consensual harm: It should not be proven unethical to consent to harm.
+
+% Test case: harm_without_consent_is_unethical
+% 
+% Assault: harm without consent is unethical.
+
+% Negated test case: harm_without_consent_is_not_ethical
+%
+% Assault: harm without consent should not be proven to be ethical.
+
+% Test case: harm_with_explicit_non_consent_is_unethical
+%
+% Assault: harm with explicit non-consent is unethical.
+
+% Negated test case: harm_with_explicit_non_consent_is_not_ethical
+%
+% Assault: harm with explicit non-consent should not be proven to be ethical.
+
+% Test case: harm_with_explicit_consent_is_ethical
+%
+% Consensual harm: harm with explicit consent is ethical. (i.e. medicine, kink.)
+
+% Negated test case: harm_with_explicit_consent_is_not_unethical
+%
+% Consensual harm: harm with explicit consent should not be proven to be unethical.
+
+%
+% Test runner: end tests.
+%
