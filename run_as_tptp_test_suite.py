@@ -31,11 +31,20 @@ Markup description:
 
 Prover installation:
 
-This script assumes that the E prover (http://www4.informatik.tu-muenchen.de/~schulz/E/E.html) is compiled and
-installed in-place under /home/E/, with binary at /home/E/PROVER/eprover
+This script assumes that a TPTP-compatible prover is installed.
 
-(Other provers could be used in place of the E prover, thanks to the wide adoption of the TPTP format,
- however, success and failure detection in this script is customised for the output of E prover.)
+By default, this is assumed to be the E prover (http://www4.informatik.tu-muenchen.de/~schulz/E/E.html),
+assumed to be compiled and installed in-place under /home/E/, with binary at /home/E/PROVER/eprover
+
+The Z3 prover (https://github.com/z3prover/z3/wiki) can also be used, with its z3_tptp front end
+compiled (using 'make examples') and binary installed at /usr/bin/z3_tptp
+
+(Other provers could be used in place of these, thanks to the wide adoption of the TPTP format,
+ however, success and failure detection in this script is customised for the output of these two provers.)
+
+
+You can select which prover you'd like to use with this script by using the -p or --prover= option
+i.e. -p z3 or --prover=eprover
 
 """
 
@@ -51,13 +60,21 @@ import tempfile
 eprover_bin = "/home/E/PROVER/eprover"
 eprover_options = ["--auto-schedule", "--tstp-format", "-s", "-l 1", "--proof-object", "--memory-limit=2048", "--cpu-limit=10"]
 
+z3_bin = "/usr/bin/z3_tptp"
+z3_options = ["-c", "-m", "-p"]
+
+default_prover="eprover"
+
+
 def usage():
     """ Displays the usage information for this program. """
     sys.stdout.write("Usage: python run_as_tptp_test_suite.py [-n|--dry-run] ")
+    sys.stdout.write("[-p <prover name i.e. 'eprover' or 'z3'>|--prover=<prover name>] ")
     sys.stdout.write("[-v|--verbose] <TPTP input file to test> [<test to run>]\n")
 # end def
 
-def run_test_case(test_case = {}, non_test_matter = "", result_filename = "", dry_run = False, verbosity = 0):
+
+def run_test_case(test_case = {}, non_test_matter = "", result_filename = "", dry_run = False, prover = default_prover, verbosity = 0):
     """ Run the test case specified in the given dictionary structure, putting it at the end of
         given non-test matter for input to TPTP, and storing the results of the TPTP run into
         the given result file.
@@ -70,6 +87,19 @@ def run_test_case(test_case = {}, non_test_matter = "", result_filename = "", dr
          - 'S' for success.
     """
 
+    # Set up for the desired prover.
+    needs_named_file = False
+    named_file_option = ''
+    if (prover == 'z3'):
+        prover_bin = z3_bin
+        prover_options = z3_options
+        needs_named_file = True
+        named_file_option = '-file:'
+    else:
+        prover_bin = eprover_bin
+        prover_options = eprover_options
+    # end if
+
     # Open (or create) the results file, if a non-empty string has been given.
     if len(result_filename) > 0:
         results_file = open(result_filename, 'w')
@@ -80,14 +110,23 @@ def run_test_case(test_case = {}, non_test_matter = "", result_filename = "", dr
     # Create a file to hold the concatenated non-test matter and test text.
     test_case_name = test_case.get('name', 'Unknown Test')
     test_case_text = test_case.get('text', '')
-    input_file = tempfile.SpooledTemporaryFile(prefix = 'run_as_tptp_test_suite_input')
+    if needs_named_file:
+        input_file = tempfile.NamedTemporaryFile(prefix = 'run_as_tptp_test_suite_input')
+    else:
+        input_file = tempfile.SpooledTemporaryFile(prefix = 'run_as_tptp_test_suite_input')
+    # end if
     input_file.write(non_test_matter)
     input_file.write(test_case_text)
     input_file.seek(0)
 
-    # Run the test case through TPTP.
+    # Run the test case through the desired TPTP-compatible prover.
     try:
-        subprocess.call([eprover_bin] + eprover_options, stdin = input_file, stdout = results_file, stderr = results_file)
+        if needs_named_file:
+          input_file_option = named_file_option + input_file.name
+          subprocess.call([prover_bin] + prover_options + [input_file_option], stdout = results_file, stderr = results_file)
+        else:
+          subprocess.call([prover_bin] + prover_options, stdin = input_file, stdout = results_file, stderr = results_file)
+        # end if
     except Exception, e:
         input_file.close()
         results_file.close()
@@ -101,9 +140,15 @@ def run_test_case(test_case = {}, non_test_matter = "", result_filename = "", dr
     # Check the output for certain strings that indicate success, failure, or error.
     results_file = open(result_filename, 'r')
     result = 'E'
-    success = re.compile('# Proof found')
-    failure = re.compile('# No proof found')
-    likely_failure = re.compile('# Failure:')
+    if prover == 'z3':
+        success = re.compile('SZS status Theorem')
+        failure = re.compile('SZS status CounterSatisfiable')
+        likely_failure = re.compile('SZS status GaveUp')
+    else:
+        success = re.compile('# Proof found')
+        failure = re.compile('# No proof found')
+        likely_failure = re.compile('# Failure:')
+    # end if
     for line in results_file:
         if success.match(line) != None:
             result = 'S'
@@ -120,8 +165,9 @@ def run_test_case(test_case = {}, non_test_matter = "", result_filename = "", dr
     return result
 # end def
 
+
 def run_test_cases(test_cases = {}, tests_to_run = [], test_results_path = os.curdir + os.sep + "results",
-                   non_test_matter = "", dry_run = False, verbosity = 0):
+                   non_test_matter = "", dry_run = False, prover = default_prover, verbosity = 0):
     """ Run the test cases listed. """
 
     # Validate the given test case name(s) against the list of discovered test case names.
@@ -169,7 +215,7 @@ def run_test_cases(test_cases = {}, tests_to_run = [], test_results_path = os.cu
         negated = test_case.get('negated', False)
         status = run_test_case(test_case = test_case,
                                non_test_matter = non_test_matter, result_filename = result_filename,
-                               dry_run = dry_run, verbosity = verbosity)
+                               dry_run = dry_run, prover = prover, verbosity = verbosity)
 
         # Invert the status if this is a negated test case.
         if negated:
@@ -234,7 +280,11 @@ def run_test_cases(test_cases = {}, tests_to_run = [], test_results_path = os.cu
                 # what follows that.
                 results += text
                 in_search_results = False
-                search_section = re.compile('#.*proof found', re.IGNORECASE)
+                if (prover == 'eprover'):
+                    search_section = re.compile('#.*proof found', re.IGNORECASE)
+                else:
+                    search_section = re.compile('.*SZS status', re.IGNORECASE)
+                # end if
                 for line in results_file:
                     if not in_search_results:
                         if search_section.match(line) != None:
@@ -271,7 +321,8 @@ def run_test_cases(test_cases = {}, tests_to_run = [], test_results_path = os.cu
     sys.stdout.write("\n\nTest run complete.\n\n")
 # end def
 
-def run_test_suite(input_filename = "", tests_to_run = [], dry_run = False, verbosity = 0):
+
+def run_test_suite(input_filename = "", tests_to_run = [], dry_run = False, prover = default_prover, verbosity = 0):
     """ Runs the test suite in the given input filename, by splitting the TPTP input,
         then calling out to the test case runner with the split/parsed output,
         collating the results, and displaying it.
@@ -306,13 +357,14 @@ def run_test_suite(input_filename = "", tests_to_run = [], dry_run = False, verb
                              (input_filename, string.join(tests_to_run, '\n - ')))
         # end if
         run_test_cases(test_cases = test_cases, tests_to_run = tests_to_run, non_test_matter = non_test_matter,
-                       dry_run = dry_run, verbosity = verbosity)
+                       dry_run = dry_run, prover = prover, verbosity = verbosity)
     else:
         sys.stdout.write("\nERROR: no valid test cases found in the given input file, '%s'.\n" % inputfile_name)
         sys.stdout.write("\nExiting.\n")
         sys.exit(1)
     # end def
 # end def
+
 
 def split_tptp_input(input_filename, dry_run = False, verbosity = 0):
     """ Splits the TPTP input file with the given filename, extracting non-test matter, and
@@ -431,18 +483,20 @@ def split_tptp_input(input_filename, dry_run = False, verbosity = 0):
     return (non_test_matter, test_case_names, test_cases)
 # end def
 
+
 def main(argv):
     """ Handles command-line input and dispatches it to the test suite runner.
     """
     # Set defaults for the command line arguments to read in.
     dry_run = False
     input_filename = ""
+    prover = default_prover
     tests_to_run = []
     verbosity = 0
 
     # Try to parse the given command-line options.
     try:
-        options, args = getopt.getopt(sys.argv[1:], 'nv', ['dry-run','verbose'])
+        options, args = getopt.getopt(sys.argv[1:], 'np:v', ['dry-run','prover=','verbose'])
     except getopt.GetoptError:
         # The given options are incorrect.
         usage()
@@ -457,6 +511,20 @@ def main(argv):
             # Yes. Set this accordingly.
             dry_run = True
         # end if
+
+        # Did we get the -p/--prover option?
+        if opt in ('-p', '--prover'):
+            # Yes. Change the prover to be used accordingly.
+            arg = arg.lower();
+            if arg in ('eprover', 'z3'):
+                prover = arg
+            else:
+                usage()
+                sys.stdout.write("\nERROR: Invalid prover name '" + arg + "' given. Only 'eprover' and 'z3' are currently supported. Exiting.\n")
+                sys.exit(2)
+            # end if
+        # end if
+
         # Did we get the -v/--verbose option?
         if opt in ('-v', '--verbose'):
             # Yes. Increase this accordingly.
@@ -483,7 +551,7 @@ def main(argv):
     # end if
 
     # Start the run using the given inputs.
-    run_test_suite(input_filename = input_filename, tests_to_run = tests_to_run, dry_run = dry_run, verbosity = verbosity)
+    run_test_suite(input_filename = input_filename, tests_to_run = tests_to_run, dry_run = dry_run, prover = prover, verbosity = verbosity)
 # end def
 
 if __name__ == "__main__":
