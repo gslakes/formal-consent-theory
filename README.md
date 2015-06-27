@@ -143,8 +143,8 @@ automated theorem prover via a Python-based test suite runner provided in this c
 `run_as_prover9_test_suite.py`.
 
 The `.tptp` files are versions of the same theories and tests for use with TPTP-compatible provers, and may
-be used with a similar test runner, `run_as_tptp_test_suite.py`, which uses the TPTP-compatible
-E prover (http://www.eprover.org) as its prover.
+be used with a similar test runner, `run_as_tptp_test_suite.py`, which can use either
+E prover (http://www.eprover.org) or Z3 prover (https://github.com/z3prover/z3/wiki) as its prover.
 
 
 It is recommended to get started by studying the demonstration system in `naive_consent_theory.tptp`
@@ -160,9 +160,9 @@ demonstration system into the web-based System on TPTP prover at
 should allow basic exploration of the system without needing to install a prover.
 
 
-For more in-depth/protracted use, installation of either Prover9 or E prover and the use of the test runners
-is highly recommended, as this is a far more convient way to test any trial modifications you may
-wish to make. (This also avoids taxing the resources of the generous people running System on TPTP.)
+For more in-depth/protracted use, installation of either Prover9, E prover, or Z3, and the use of the test runners
+is highly recommended, as this is a far more convenient way to test any trial modifications you may wish to make.
+(This also avoids taxing the resources of the generous people running System on TPTP.)
 
 Please see the documentation at the start of either test runner for further installation and use instructions.
 
