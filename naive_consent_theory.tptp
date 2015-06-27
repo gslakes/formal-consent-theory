@@ -52,6 +52,7 @@
 
 % Define ethical actions.
 fof(ethical_action_definition, axiom,
+    ! [A, B, X]:
     (
      ethical(A, B, X) <=>
      (
