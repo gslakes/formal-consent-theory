@@ -8,10 +8,25 @@
 % This is intended as an introduction to the basic concept and proof system, and not as a complete or
 % useful system.
 %
-% Included is a set of test cases to check the system for consistency with known ethical/unethical
-% behaviour.
+% A plain language summary of this system:
 %
-% (These are not conclusive/exhaustive tests; they're just to demonstrate how the system works.)
+% It is ethical to:
+%  1. ask for consent for an action, get consent for that action, and then:
+%     a. do that action
+%     b. NOT do that action.
+%  2. ask for consent, NOT get consent for that action, and then NOT do that action.
+%  3. do or NOT do an action to yourself.
+%
+% As you can see, this is a very simple model of ethical behaviour, yet consent
+% by itself is enough to decide the difference between medicine, assault,
+% euthanasia, suicide, and murder.
+%
+%
+% Included is a set of test cases to demonstrate these results, and act as a
+% basic check on this system for consistency.
+%
+% (These are not intended to be conclusive/exhaustive tests, and your personal
+%  morals and/or ethics may differ from what is consistent with this system.)
 %
 %
 % NOTE: This file is designed to be run through the (supplied) Python-based test runner called
@@ -33,6 +48,18 @@
 %       Individual tests may be run using the following command line:
 %
 %         python run_as_prover9_test_suite.py naive_consent_theory.in asking_and_getting_consent_is_ethical
+%
+%
+%       Expected output from a full test suite run:
+%
+%       $ ./run_as_prover9_test_suite.py naive_consent_theory.in
+%       Test results:
+%
+%       ..............................
+%
+%
+%       Test run complete.
+%
 %%%
 
 %%%%%%%%%%%%%%%%%%
