@@ -277,36 +277,43 @@ many eyes may make (humanity-threatening) bugs shallow.
 Getting started
 ---------------
 
-The `.in` and `.tptp` files in this code repository contain machine-readable theories and automated tests.
+It is recommended to get started by studying the demonstration system in `naive_consent_theory.py`
+(or more formally in `naive_consent_theory.in` or `naive_consent_theory.tptp`), which contains a
+simplistic/'naive' formalisation of consent theory-based ethics.
 
 
-The `.in` files are for use with the Prover9 (http://www.cs.unm.edu/~mccune/mace4/)
+The `naive_consent_theory.py` file contains a Python implementation of the naive consent theory.
+A test suite contained within can be run via `python naive_consent_theory.py`.  
+
+The `naive_consent_theory.in` files are for use with the Prover9 (http://www.cs.unm.edu/~mccune/mace4/)
 automated theorem prover via a Python-based test suite runner provided in this code repository,
 `run_as_prover9_test_suite.py`.
 
-The `.tptp` files are versions of the same theories and tests for use with TPTP-compatible provers, and may
+The `naive_consent_theory.tptp` files are for use with TPTP-compatible provers, and may
 be used with a similar test runner, `run_as_tptp_test_suite.py`, which can use either
 E prover (http://www.eprover.org) or Z3 prover (https://github.com/z3prover/z3/wiki) as its prover.
 
-
-It is recommended to get started by studying the demonstration system in `naive_consent_theory.tptp`
-(or identically in `naive_consent_theory.in`), which contains a simplistic/'naive' formalisation of
-consent theory-based ethics.
+(`consent_theory.in` is an in-progress attempt at extending this theory further.)
 
 
-For the quickest start, copying definitions and individual test cases from the TPTP version of this
-demonstration system into the web-based System on TPTP prover at
+If you want to extend these theories, please consider doing so using the theorem prover versions
+of this theory, as formal proof can give (much needed) assurances of correctness code can not.
+
+The quickest start with the formal proof version will be via copying definitions and
+individual test cases from the TPTP version of this demonstration system into the
+web-based System on TPTP prover at
 
     http://www.cs.miami.edu/~tptp/cgi-bin/SystemOnTPTP
 
-should allow basic exploration of the system without needing to install a prover.
+which should allow basic exploration of the system without needing to install a prover.
 
 
 For more in-depth/protracted use, installation of either Prover9, E prover, or Z3, and the use of the test runners
 is highly recommended, as this is a far more convenient way to test any trial modifications you may wish to make.
 (This also avoids taxing the resources of the generous people running System on TPTP.)
 
-Please see the documentation at the start of either test runner for further installation and use instructions.
+Please see the documentation at the start of either implementation for further installation and
+use instructions.
 
 
 
