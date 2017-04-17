@@ -214,6 +214,42 @@ Future theories are intended to have the following features:
    society safely alongside humans.
 
 
+ - a consideration of the impact of hate speech, if previous features don't supply this result already.
+
+   Why: vilification of minority groups is harmful to those vilified, both directly (i.e. emotional harm,
+   reinforcement of incorrect beliefs of inferiority) and indirectly, by the acts it encourages.
+   (i.e. abuse, hate crime, genocide.)
+
+   While it's not intended that this system should work to prevent hate speech, or regulate speech at all - this would
+   violate the agency of the speaker - it should be understood that such speech is harmful in itself, and understood
+   that making this kind of speech registers an intent to harm further.
+   
+   (Even if such intent is denied or retracted - 'only joking'.)
+
+
+
+ - a consideration of how to act to minimise harm, if the system is given responsibility/trust to do so.
+
+   Why: this is a potential use of this system, so reasoning about how to minimise the harm of actions
+   taken to prevent harm is important.
+
+   There are many dystopian depictions in fiction of overly-zealous (AI) systems enforcing social policy and
+   causing greater harm while doing so, so testing to prevent these pathological scenarios is important.
+   
+   Restraining someone because they are judged likely to commit harm (aka 'pre-crime') is anti-agency.
+   
+   Acts to prevent violence should only be taken immediately before the violence would be performed -
+   i.e. with weapon poised to strike - in case the harmful act is not perpetrated.
+   (At the latest possible causal branching point to establish to human satisfaction that harm would have been done.) 
+
+   Conversely, acts that just look violent (i.e. martial arts or theatre, ala Scheckley's 'Watchbird'), may or even
+   will cause harm (i.e. driving, medicine, BDSM, etc) should not be prevented if the participants have
+   meaningfully consented to the act.
+
+   An understanding of the proportionality of force (if using force is available/desired) is also important.
+   (A system that murders someone to prevent bruises is pathological.)
+ 
+
 
 How to use this system
 ----------------------
