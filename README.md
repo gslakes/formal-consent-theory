@@ -38,8 +38,9 @@ A.
 Consent theory appears to unify a number of ethical disciplines in a manner that is
 relatively easy for both humans and machines to use to make decisions.
 
-Also, many existing systems don't model consent and autonomy, and so there's a range
-of interactions permitted by these system that would be commonly deemed illegal or unethical.
+Also, many existing systems don't model consent and autonomy (using instead preferences or 
+permitted/forbidden actions), and so there's a range of interactions permitted by these
+systems that would be commonly deemed illegal or unethical.
 
 
 Q. Is there a use for a formal consent theory beyond machine ethics?
@@ -78,9 +79,14 @@ we'll have a robust and well-tested machine ethics system to build into it to pr
 being harmful, and to prevent it from being used by others to do harmful things.
 
 
-
-Planned features
+Current features
 ----------------
+
+The included 'naive'/simplistic consent theory implements a simple model of consent,
+yet consent by itself is enough to distinguish between medicine, assault,
+euthanasia, suicide, and murder.
+
+It has the following features in particular: 
 
  - a positive-consent-only model of consent.
 
@@ -93,6 +99,16 @@ Planned features
    It is also a key principle of many legal/ethical systems i.e. 'opt out' behaviour is recognised to
    be harmful/unethical.
 
+ - a simple model of self-directed actions.
+
+   Why: consent has one or two simple exemptions, in that you don't need to ask your own consent
+   before you do something that has no impact on others.
+
+
+Planned features
+----------------
+
+Future theories are intended to have the following features:
 
  - time-aware consent reasoning, with interactions having time spans, revocation of prior
    consent grants (including revocation mid-action), and recognition of the temporary nature
@@ -150,7 +166,7 @@ Planned features
     typically considered assault in most legal/ethical systems.)
 
 
- - modelling self-directed interactions and harm (i.e. where the ethical system is a direct actor.)
+ - more modelling of self-directed interactions and harm (particularly where the ethical system is a direct actor.)
 
    Why: so that the system can choose harm to itself as part of its agency.
 
