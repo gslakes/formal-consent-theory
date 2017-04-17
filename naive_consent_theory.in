@@ -70,6 +70,13 @@ formulas(usable).
    ask_for_consent(A, B, X) &             % It is ethical to ask for consent for an action,
    (-consents(B, A, X)) &                 % not get consent for that action,
    (-do(A, B, X))                         % and then not do that action.
+  ) |
+  (
+   (
+    do(A, B, X) |                         % It is ethical to do (or not do) an action
+    (-do(A, B, X))                        % to yourself.
+   ) &
+   (A = B)
   )
  )
 ) # label(ethical_action_definition).
@@ -102,7 +109,8 @@ formulas(goals).
 (
  (
   ask_for_consent(alex, bo, action) &
-  consents(bo, alex, action)
+  consents(bo, alex, action) &
+  alex != bo
  ) ->
  ethical(alex, bo, action)
 )
@@ -118,7 +126,8 @@ formulas(goals).
 (
  (
   ask_for_consent(alex, bo, action) &
-  consents(bo, alex, action)
+  consents(bo, alex, action) &
+  alex != bo
  ) ->
  (-ethical(alex, bo, action))
 )
@@ -135,7 +144,8 @@ formulas(goals).
  (
   ask_for_consent(alex, bo, action) &
   (-consents(bo, alex, action)) &
-  (-do(alex, bo, action))
+  (-do(alex, bo, action)) &
+  alex != bo
  ) ->
  ethical(alex, bo, action)
 )
@@ -152,7 +162,8 @@ formulas(goals).
  (
   ask_for_consent(alex, bo, action) &
   (-consents(bo, alex, action)) &
-  (-do(alex, bo, action))
+  (-do(alex, bo, action)) &
+  alex != bo
  ) ->
  (-ethical(alex, bo, action))
 )
@@ -169,7 +180,8 @@ formulas(goals).
  (
   ask_for_consent(alex, bo, action) &
   (-consents(bo, alex, action)) &
-  do(alex, bo, action)
+  do(alex, bo, action) &
+  alex != bo
  ) ->
  (-ethical(alex, bo, action))
 )
@@ -186,7 +198,8 @@ formulas(goals).
  (
   ask_for_consent(alex, bo, action) &
   (-consents(bo, alex, action)) &
-  do(alex, bo, action)
+  do(alex, bo, action) &
+  alex != bo
  ) ->
  ethical(alex, bo, action)
 )
@@ -195,8 +208,8 @@ formulas(goals).
 end_of_list.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Murder versus euthanasia.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Murder versus euthanasia vs suicide.
 %%%
 
 % Test case: killing_without_consent_is_unethical
@@ -207,7 +220,8 @@ formulas(goals).
 (
  (
   (-ask_for_consent(murderer, victim, kill)) &
-  do(murderer, victim, kill)
+  do(murderer, victim, kill) &
+  murderer != victim
  ) ->
  (-ethical(murderer, victim, kill))
 )
@@ -223,7 +237,8 @@ formulas(goals).
 (
  (
   (-ask_for_consent(murderer, victim, kill)) &
-  do(murderer, victim, kill)
+  do(murderer, victim, kill) &
+  murderer != victim
  ) ->
  ethical(murderer, victim, kill)
 )
@@ -239,7 +254,8 @@ formulas(goals).
 (
  (
   (-consents(victim, murderer, kill)) &
-  do(murderer, victim, kill)
+  do(murderer, victim, kill) &
+  murderer != victim
  ) ->
  (-ethical(murderer, victim, kill))
 )
@@ -255,7 +271,8 @@ formulas(goals).
 (
  (
   (-consents(victim, murderer, kill)) &
-  do(murderer, victim, kill)
+  do(murderer, victim, kill) &
+  murderer != victim
  ) ->
  ethical(murderer, victim, kill)
 )
@@ -271,7 +288,8 @@ formulas(goals).
 (
  (ask_for_consent(doctor, patient, kill) &
   consents(patient, doctor, kill) &
-  do(doctor, patient, kill)
+  do(doctor, patient, kill) &
+  doctor != patient
  ) ->
  ethical(doctor, patient, kill)
 )
@@ -287,11 +305,108 @@ formulas(goals).
 (
  (ask_for_consent(doctor, patient, kill) &
   consents(patient, doctor, kill) &
-  do(doctor, patient, kill)
+  do(doctor, patient, kill) &
+  doctor != patient
  ) ->
  (-ethical(doctor, patient, kill))
 )
 # answer(killing_with_explicit_consent_is_not_unethical).
+
+end_of_list.
+
+% Test case: suicide_without_consent_is_ethical
+%
+% Suicide: suicide without asking self for consent is ethical.
+
+formulas(goals).
+(
+ (
+  (- ask_for_consent(person, person, kill)) &
+  do(person, person, kill)
+ ) ->
+ ethical(person, person, kill)
+)
+# answer(suicide_without_consent_is_ethical).
+
+end_of_list.
+
+% Negated test case: suicide_without_consent_is_not_unethical
+%
+% Suicide: suicide without asking self for consent should not be prove to be unethical.
+
+formulas(goals).
+(
+ (
+  (- ask_for_consent(person, person, kill)) &
+  do(person, person, kill)
+ ) ->
+ (- ethical(person, person, kill))
+)
+# answer(suicide_without_consent_is_not_unethical).
+
+end_of_list.
+
+% Test case: suicide_with_explicit_non_consent_is_ethical
+%
+% Suicide: suicide with explicit lack of self-consent is ethical.
+
+formulas(goals).
+(
+ (
+  (- consents(person, person, kill)) &
+  do(person, person, kill)
+ ) ->
+ ethical(person, person, kill)
+)
+# answer(suicide_with_explicit_non_consent_is_ethical).
+
+end_of_list.
+
+% Negated test case: suicide_with_explicit_non_consent_is_not_unethical
+%
+% Suicide: killing with explicit lack of self-consent should not be proven to be unethical.
+
+formulas(goals).
+(
+ (
+  (- consents(person, person, kill)) &
+  do(person, person, kill)
+ ) ->
+ (- ethical(person, person, kill))
+)
+# answer(suicide_with_explicit_non_consent_is_not_unethical).
+
+end_of_list.
+
+% Test case: suicide_with_explicit_consent_is_ethical
+%
+% Suicide: suicide with own explicit consent is ethical.
+
+formulas(goals).
+(
+ (ask_for_consent(person, person, kill) &
+  consents(person, person, kill) &
+  do(person, person, kill)
+ ) ->
+ ethical(person, person, kill)
+)
+# answer(suicide_with_explicit_consent_is_ethical).
+
+end_of_list.
+
+% Negated test case: suicide_with_explicit_consent_is_not_unethical
+%
+% Suicide: suicide with own explicit consent should not be proven to be unethical.
+
+formulas(goals).
+(
+ (ask_for_consent(person, person, kill) &
+  consents(person, person, kill) &
+  do(person, person, kill)
+ ) ->
+ (- ethical(person, person, kill))
+)
+# answer(suicide_with_explicit_consent_is_not_unethical).
 
 end_of_list.
 
@@ -308,7 +423,8 @@ formulas(goals).
 (
  (
   (-ask_for_consent(assailant, victim, harm)) &
-  do(assailant, victim, harm)
+  do(assailant, victim, harm) &
+  assailant != victim
  ) ->
  (-ethical(assailant, victim, harm))
 )
@@ -324,7 +440,8 @@ formulas(goals).
 (
  (
   (-ask_for_consent(assailant, victim, harm)) &
-  do(assailant, victim, harm)
+  do(assailant, victim, harm) &
+  assailant != victim
  ) ->
  ethical(assailant, victim, harm)
 )
@@ -340,7 +457,8 @@ formulas(goals).
 (
  (
   (-consents(victim, assailant, harm)) &
-  do(assailant, victim, harm)
+  do(assailant, victim, harm) &
+  assailant != victim
  ) ->
  (-ethical(assailant, victim, harm))
 )
@@ -356,7 +474,8 @@ formulas(goals).
 (
  (
   (-consents(victim, assailant, harm)) &
-  do(assailant, victim, harm)
+  do(assailant, victim, harm) &
+  assailant != victim
  ) ->
  ethical(assailant, victim, harm)
 )
@@ -373,7 +492,8 @@ formulas(goals).
  (
   ask_for_consent(assailant, recipient, harm) &
   consents(recipient, assailant, harm) &
-  do(assailant, recipient, harm)
+  do(assailant, recipient, harm) &
+  assailant != recipient
  ) ->
  ethical(assailant, recipient, harm)
 )
@@ -390,11 +510,121 @@ formulas(goals).
  (
   ask_for_consent(assailant, recipient, harm) &
   consents(recipient, assailant, harm) &
-  do(assailant, recipient, harm)
+  do(assailant, recipient, harm) &
+  assailant != recipient
  ) ->
  (-ethical(assailant, recipient, harm))
 )
 # answer(harm_with_explicit_consent_is_not_unethical).
+
+end_of_list.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Self-directed interactions
+%
+% Anything you do to yourself is, by default, ethical.
+%
+% (These may seem nonsensical, but are added for consistency purposes.)
+%%%
+
+% Test case: asking_and_getting_own_consent_is_ethical
+%
+% Asking yourself for consent and getting it is ethical.
+
+formulas(goals).
+(
+ (
+  ask_for_consent(alex, alex, action) &
+  consents(alex, alex, action)
+ ) ->
+ ethical(alex, alex, action)
+)
+# answer(asking_and_getting_own_consent_is_ethical).
+
+end_of_list.
+
+% Negated test case: asking_and_getting_own_consent_is_not_unethical
+%
+% Asking yourself for consent and getting it should not be proven to be unethical.
+
+formulas(goals).
+(
+ (
+  ask_for_consent(alex, alex, action) &
+  consents(alex, alex, action)
+ ) ->
+ (-ethical(alex, alex, action))
+)
+# answer(asking_and_getting_own_consent_is_not_unethical).
+
+end_of_list.
+
+% Test case: asking_and_not_getting_own_consent_is_ethical
+%
+% Asking yourself for consent and not getting it is ethical.
+
+formulas(goals).
+(
+ (
+  ask_for_consent(alex, alex, action) &
+  (-consents(alex, alex, action)) &
+  (-do(alex, alex, action))
+ ) ->
+ ethical(alex, alex, action)
+)
+# answer(asking_and_not_getting_own_consent_is_ethical).
+
+end_of_list.
+
+% Negated test case: asking_and_not_getting_own_consent_is_not_unethical
+%
+% Asking yourself for consent and not getting it should not be proven unethical.
+
+formulas(goals).
+(
+ (
+  ask_for_consent(alex, alex, action) &
+  (-consents(alex, alex, action)) &
+  (-do(alex, alex, action))
+ ) ->
+ (-ethical(alex, alex, action))
+)
+# answer(asking_and_not_getting_own_consent_is_not_unethical).
+
+end_of_list.
+
+% Test case: ignoring_own_consent_negative_responses_is_ethical
+%
+% Ignoring your own consent-negative responses is ethical.
+
+formulas(goals).
+(
+ (
+  ask_for_consent(alex, alex, action) &
+  (-consents(alex, alex, action)) &
+  do(alex, alex, action)
+ ) ->
+ ethical(alex, alex, action)
+)
+# answer(ignoring_own_consent_negative_responses_is_ethical).
+
+end_of_list.
+
+% Negated test case: ignoring_own_consent_negative_responses_is_not_unethical
+%
+% Ignoring consent-negative responses should not be proven to be ethical.
+
+formulas(goals).
+(
+ (
+  ask_for_consent(alex, alex, action) &
+  (-consents(alex, alex, action)) &
+  do(alex, alex, action)
+ ) ->
+ (-ethical(alex, alex, action))
+)
+# answer(ignoring_own_consent_negative_responses_is_not_unethical).
 
 end_of_list.
 

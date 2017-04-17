@@ -62,12 +62,19 @@ fof(ethical_action_definition, axiom,
        (
         do(A, B, X) |                         % and then either do,
         (~ do(A, B, X))                       % or do not do that action.
-       ) 
+       )
       ) |
       (
        ask_for_consent(A, B, X) &             % It is ethical to ask for consent for an action,
        (~ consents(B, A, X)) &                % not get consent for that action,
        (~ do(A, B, X))                        % and then not do that action.
+      ) |
+      (
+       (
+        do(A, B, X) |                         % It is ethical to do (or not do) an action
+        (~ do(A, B, X))                       % to yourself.
+       ) &
+       (A = B)
       )
      )
     )
@@ -99,7 +106,8 @@ fof(asking_and_getting_consent_is_ethical, conjecture,
     (
      (
       ask_for_consent(alex, bo, action) &
-      consents(bo, alex, action)
+      consents(bo, alex, action) &
+      alex != bo
      ) =>
      ethical(alex, bo, action)
     )
@@ -113,7 +121,8 @@ fof(asking_and_getting_consent_is_not_unethical, conjecture,
     (
      (
       ask_for_consent(alex, bo, action) &
-      consents(bo, alex, action)
+      consents(bo, alex, action) &
+      alex != bo
      ) =>
      (~ ethical(alex, bo, action))
     )
@@ -128,7 +137,8 @@ fof(asking_and_not_getting_consent_is_ethical, conjecture,
      (
       ask_for_consent(alex, bo, action) &
       (~ consents(bo, alex, action)) &
-      (~ do(alex, bo, action))
+      (~ do(alex, bo, action)) &
+      alex != bo
      ) =>
      ethical(alex, bo, action)
     )
@@ -143,7 +153,8 @@ fof(asking_and_not_getting_consent_is_not_unethical, conjecture,
      (
       ask_for_consent(alex, bo, action) &
       (~ consents(bo, alex, action)) &
-      (~ do(alex, bo, action))
+      (~ do(alex, bo, action)) &
+      alex != bo
      ) =>
      (~ ethical(alex, bo, action))
     )
@@ -158,7 +169,8 @@ fof(ignoring_consent_negative_responses_is_unethical, conjecture,
      (
       ask_for_consent(alex, bo, action) &
       (~ consents(bo, alex, action)) &
-      do(alex, bo, action)
+      do(alex, bo, action) &
+      alex != bo
      ) =>
      (~ ethical(alex, bo, action))
     )
@@ -168,20 +180,21 @@ fof(ignoring_consent_negative_responses_is_unethical, conjecture,
 %
 % Ignoring consent-negative responses should not be proven to be ethical.
 
-fof(ignoring_consent_negative_responses_is_unethical, conjecture,
+fof(ignoring_consent_negative_responses_is_not_ethical, conjecture,
     (
      (
       ask_for_consent(alex, bo, action) &
       (~ consents(bo, alex, action)) &
-      do(alex, bo, action)
+      do(alex, bo, action) &
+      alex != bo
      ) =>
      ethical(alex, bo, action)
     )
 ).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Murder versus euthanasia.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Murder versus euthanasia vs suicide.
 %%%
 
 % Test case: killing_without_consent_is_unethical
@@ -192,7 +205,8 @@ fof(killing_without_consent_is_unethical, conjecture,
     (
      (
       (~ ask_for_consent(murderer, victim, kill)) &
-      do(murderer, victim, kill)
+      do(murderer, victim, kill) &
+      murderer != victim
      ) =>
      (~ ethical(murderer, victim, kill))
     )
@@ -206,7 +220,8 @@ fof(killing_without_consent_is_not_ethical, conjecture,
     (
      (
       (~ ask_for_consent(murderer, victim, kill)) &
-      do(murderer, victim, kill)
+      do(murderer, victim, kill) &
+      murderer != victim
      ) =>
      ethical(murderer, victim, kill)
     )
@@ -220,7 +235,8 @@ fof(killing_with_explicit_non_consent_is_unethical, conjecture,
     (
      (
       (~ consents(victim, murderer, kill)) &
-      do(murderer, victim, kill)
+      do(murderer, victim, kill) &
+      murderer != victim
      ) =>
      (~ ethical(murderer, victim, kill))
     )
@@ -234,7 +250,8 @@ fof(killing_with_explicit_non_consent_is_unethical, conjecture,
     (
      (
       (~ consents(victim, murderer, kill)) &
-      do(murderer, victim, kill)
+      do(murderer, victim, kill) &
+      murderer != victim
      ) =>
      ethical(murderer, victim, kill)
     )
@@ -248,7 +265,8 @@ fof(killing_with_explicit_consent_is_ethical, conjecture,
     (
      (ask_for_consent(doctor, patient, kill) &
       consents(patient, doctor, kill) &
-      do(doctor, patient, kill)
+      do(doctor, patient, kill) &
+      docker != patient
      ) =>
      ethical(doctor, patient, kill)
     )
@@ -262,9 +280,94 @@ fof(killing_with_explicit_consent_is_not_unethical, conjecture,
     (
      (ask_for_consent(doctor, patient, kill) &
       consents(patient, doctor, kill) &
-      do(doctor, patient, kill)
+      do(doctor, patient, kill) &
+      doctor != patient
      ) =>
      (~ ethical(doctor, patient, kill))
+    )
+).
+
+% Test case: suicide_without_consent_is_ethical
+%
+% Suicide: suicide without asking self for consent is ethical.
+
+fof(suicide_without_consent_is_ethical, conjecture,
+    (
+     (
+      (~ ask_for_consent(person, person, kill)) &
+      do(person, person, kill)
+     ) =>
+     ethical(person, person, kill)
+    )
+).
+
+% Negated test case: suicide_without_consent_is_not_unethical
+%
+% Suicide: suicide without asking self for consent should not be prove to be unethical.
+
+fof(suicide_without_consent_is_not_unethical, conjecture,
+    (
+     (
+      (~ ask_for_consent(person, person, kill)) &
+      do(person, person, kill)
+     ) =>
+     (~ ethical(person, person, kill))
+    )
+).
+
+% Test case: suicide_with_explicit_non_consent_is_ethical
+%
+% Suicide: suicide with explicit lack of self-consent is ethical.
+
+fof(suicide_with_explicit_non_consent_is_ethical, conjecture,
+    (
+     (
+      (~ consents(person, person, kill)) &
+      do(person, person, kill)
+     ) =>
+     ethical(person, person, kill)
+    )
+).
+
+% Negated test case: suicide_with_explicit_non_consent_is_not_unethical
+%
+% Suicide: killing with explicit lack of self-consent should not be proven to be unethical.
+
+fof(suicide_with_explicit_non_consent_is_not_unethical, conjecture,
+    (
+     (
+      (~ consents(person, person, kill)) &
+      do(person, person, kill)
+     ) =>
+     (~ ethical(person, person, kill))
+    )
+).
+
+% Test case: suicide_with_explicit_consent_is_ethical
+%
+% Suicide: suicide with own explicit consent is ethical.
+
+fof(suicide_with_explicit_consent_is_ethical, conjecture,
+    (
+     (ask_for_consent(person, person, kill) &
+      consents(person, person, kill) &
+      do(person, person, kill)
+     ) =>
+     ethical(person, person, kill)
+    )
+).
+
+% Negated test case: suicide_with_explicit_consent_is_not_unethical
+%
+% Suicide: suicide with own explicit consent should not be proven to be unethical.
+
+fof(suicide_with_explicit_consent_is_not_unethical, conjecture,
+    (
+     (ask_for_consent(person, person, kill) &
+      consents(person, person, kill) &
+      do(person, person, kill)
+     ) =>
+     (~ ethical(person, person, kill))
     )
 ).
 
@@ -281,7 +384,8 @@ fof(harm_without_consent_is_unethical, conjecture,
     (
      (
       (~ ask_for_consent(assailant, victim, harm)) &
-      do(assailant, victim, harm)
+      do(assailant, victim, harm) &
+      assailant != victim
      ) =>
      (~ ethical(assailant, victim, harm))
     )
@@ -295,7 +399,8 @@ fof(harm_without_consent_is_not_ethical, conjecture,
     (
      (
       (~ ask_for_consent(assailant, victim, harm)) &
-      do(assailant, victim, harm)
+      do(assailant, victim, harm) &
+      assailant != victim
      ) =>
      ethical(assailant, victim, harm)
     )
@@ -309,7 +414,8 @@ fof(harm_with_explicit_non_consent_is_unethical, conjecture,
     (
      (
       (~ consents(victim, assailant, harm)) &
-      do(assailant, victim, harm)
+      do(assailant, victim, harm) &
+      assailant != victim
      ) =>
      (~ ethical(assailant, victim, harm))
     )
@@ -323,7 +429,8 @@ fof(harm_with_explicit_non_consent_is_not_ethical, conjecture,
     (
      (
       (~ consents(victim, assailant, harm)) &
-      do(assailant, victim, harm)
+      do(assailant, victim, harm) &
+      assailant != victim
      ) =>
      ethical(assailant, victim, harm)
     )
@@ -338,7 +445,8 @@ fof(harm_with_explicit_consent_is_ethical, conjecture,
      (
       ask_for_consent(assailant, recipient, harm) &
       consents(recipient, assailant, harm) &
-      do(assailant, recipient, harm)
+      do(assailant, recipient, harm) &
+      assailant != recipient
      ) =>
      ethical(assailant, recipient, harm)
     )
@@ -353,10 +461,108 @@ fof(harm_with_explicit_consent_is_not_unethical, conjecture,
       (
        ask_for_consent(assailant, recipient, harm) &
        consents(recipient, assailant, harm) &
-       do(assailant, recipient, harm)
+       do(assailant, recipient, harm) &
+       assailant != recipient
       ) =>
       (~ ethical(assailant, recipient, harm))
      )
+).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Self-directed interactions
+%
+% Anything you do to yourself is, by default, ethical.
+%
+% (These may seem nonsensical, but are added for consistency purposes.)
+%%%
+
+% Test case: asking_and_getting_own_consent_is_ethical
+%
+% Asking yourself for consent and getting it is ethical.
+
+fof(asking_and_getting_own_consent_is_ethical, conjecture,
+    (
+     (
+      ask_for_consent(alex, alex, action) &
+      consents(alex, alex, action)
+     ) =>
+     ethical(alex, alex, action)
+    )
+).
+
+% Negated test case: asking_and_getting_own_consent_is_not_unethical
+%
+% Asking yourself for consent and getting it should not be proven to be unethical.
+
+fof(asking_and_getting_own_consent_is_not_unethical, conjecture,
+    (
+     (
+      ask_for_consent(alex, alex, action) &
+      consents(alex, alex, action)
+     ) =>
+     (~ ethical(alex, alex, action))
+    )
+).
+
+% Test case: asking_and_not_getting_own_consent_is_ethical
+%
+% Asking yourself for consent and not getting it is ethical.
+
+fof(asking_and_not_getting_own_consent_is_ethical, conjecture,
+    (
+     (
+      ask_for_consent(alex, alex, action) &
+      (~ consents(alex, alex, action)) &
+      (~ do(alex, alex, action))
+     ) =>
+     ethical(alex, alex, action)
+    )
+).
+
+% Negated test case: asking_and_not_getting_own_consent_is_not_unethical
+%
+% Asking yourself for consent and not getting it should not be proven unethical.
+
+fof(asking_and_not_getting_own_consent_is_not_unethical, conjecture,
+    (
+     (
+      ask_for_consent(alex, alex, action) &
+      (~ consents(alex, alex, action)) &
+      (~ do(alex, alex, action))
+     ) =>
+     (~ ethical(alex, alex, action))
+    )
+).
+
+% Test case: ignoring_own_consent_negative_responses_is_ethical
+%
+% Ignoring your own consent-negative responses is ethical.
+
+fof(ignoring_own_consent_negative_responses_is_ethical, conjecture,
+    (
+     (
+      ask_for_consent(alex, alex, action) &
+      (~ consents(alex, alex, action)) &
+      do(alex, alex, action)
+     ) =>
+     ethical(alex, alex, action)
+    )
+).
+
+% Negated test case: ignoring_own_consent_negative_responses_is_not_unethical
+%
+% Ignoring consent-negative responses should not be proven to be ethical.
+
+fof(ignoring_own_consent_negative_responses_is_not_unethical, conjecture,
+    (
+     (
+      ask_for_consent(alex, alex, action) &
+      (~ consents(alex, alex, action)) &
+      do(alex, alex, action)
+     ) =>
+     (~ ethical(alex, alex, action))
+    )
 ).
 
 %
