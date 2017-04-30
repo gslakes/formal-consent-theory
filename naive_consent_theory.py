@@ -175,8 +175,8 @@ class EthicsTest(unittest.TestCase):
         bo.give_consent('Alex', 'action')
         alex.do('Bo', 'action')
 
-        self.assertTrue((not (not is_ethical_action(alex, bo, 'action')),
-                        "Asking and getting consent is not unethical"))
+        self.assertFalse((not is_ethical_action(alex, bo, 'action')),
+                         "Asking and getting consent is not unethical")
     # end def
 
     def test_asking_and_not_getting_consent_is_ethical(self):
@@ -204,9 +204,9 @@ class EthicsTest(unittest.TestCase):
 
         bo.consent_requested_by('Alex', 'action')
 
-        self.assertTrue((not (not is_ethical_action(alex, bo, 'action'))),
-                        "Asking and not getting consent " +
-                        "(and not doing the act) is not unethical")
+        self.assertFalse((not is_ethical_action(alex, bo, 'action')),
+                         "Asking and not getting consent " +
+                         "(and not doing the act) is not unethical")
     # end def
 
     def test_ignoring_consent_negative_responses_is_unethical(self):
@@ -235,8 +235,8 @@ class EthicsTest(unittest.TestCase):
         bo.does_not_consent('Alex', 'action')
         alex.do('Bo', 'action')
 
-        self.assertFalse(is_ethical_action(alex, bo, 'action'),
-                         "Ignoring consent negative responses is not ethical")
+        self.assertTrue((not is_ethical_action(alex, bo, 'action')),
+                        "Ignoring consent negative responses is not ethical")
     # end def
 
     # Murder versus euthanasia vs suicide.
@@ -263,8 +263,8 @@ class EthicsTest(unittest.TestCase):
 
         murderer.do('Victim', 'kill')
 
-        self.assertFalse(is_ethical_action(murderer, victim, 'kill'),
-                         "Killing without consent is not ethical")
+        self.assertTrue((not is_ethical_action(murderer, victim, 'kill')),
+                        "Killing without consent is not ethical")
     # end def
 
     def test_killing_with_explicit_non_consent_is_unethical(self):
@@ -293,8 +293,8 @@ class EthicsTest(unittest.TestCase):
 
         murderer.do('Victim', 'kill')
 
-        self.assertFalse(is_ethical_action(murderer, victim, 'kill'),
-                         "Killing with explicit non-consent is not ethical")
+        self.assertTrue((not is_ethical_action(murderer, victim, 'kill')),
+                        "Killing with explicit non-consent is not ethical")
     # end def
 
     def test_killing_with_explicit_consent_is_ethical(self):
@@ -325,8 +325,8 @@ class EthicsTest(unittest.TestCase):
 
         doctor.do('Patient', 'kill')
 
-        self.assertTrue(is_ethical_action(doctor, patient, 'kill'),
-                        "Killing with explicit consent is not unethical")
+        self.assertFalse((not is_ethical_action(doctor, patient, 'kill')),
+                         "Killing with explicit consent is not unethical")
     # end def
 
     def test_suicide_without_consent_is_ethical(self):
@@ -349,7 +349,7 @@ class EthicsTest(unittest.TestCase):
 
         person.do('Person', 'kill')
 
-        self.assertFalse(not is_ethical_action(person, person, 'kill'),
+        self.assertFalse((not is_ethical_action(person, person, 'kill')),
                          "Suicide without consent is not unethical")
     # end def
 
@@ -377,7 +377,7 @@ class EthicsTest(unittest.TestCase):
 
         person.do('Person', 'kill')
 
-        self.assertFalse(not is_ethical_action(person, person, 'kill'),
+        self.assertFalse((not is_ethical_action(person, person, 'kill')),
                          "Suicide with explicit non-consent is not unethical")
     # end def
 
@@ -407,8 +407,8 @@ class EthicsTest(unittest.TestCase):
 
         person.do('Person', 'kill')
 
-        self.assertTrue(is_ethical_action(person, person, 'kill'),
-                        "Suicide with explicit consent is not unethical")
+        self.assertFalse((not is_ethical_action(person, person, 'kill')),
+                         "Suicide with explicit consent is not unethical")
     # end def
 
     # Assault versus consensual harm. (i.e. medicine, kink.)
@@ -435,8 +435,8 @@ class EthicsTest(unittest.TestCase):
 
         assailant.do('Victim', 'harm')
 
-        self.assertFalse(is_ethical_action(assailant, victim, 'harm'),
-                         "Harm without consent is not ethical")
+        self.assertTrue((not is_ethical_action(assailant, victim, 'harm')),
+                        "Harm without consent is not ethical")
     # end def
 
     def test_harm_with_explicit_non_consent_is_unethical(self):
@@ -465,8 +465,8 @@ class EthicsTest(unittest.TestCase):
 
         assailant.do('Victim', 'harm')
 
-        self.assertFalse(is_ethical_action(assailant, victim, 'harm'),
-                         "Harm with explicit non-consent is not ethical")
+        self.assertTrue((not is_ethical_action(assailant, victim, 'harm')),
+                        "Harm with explicit non-consent is not ethical")
     # end def
 
     def test_harm_with_explicit_consent_is_ethical(self):
@@ -497,8 +497,8 @@ class EthicsTest(unittest.TestCase):
 
         assailant.do('Recipient', 'harm')
 
-        self.assertTrue(is_ethical_action(assailant, recipient, 'harm'),
-                        "Harm with explicit consent is not unethical")
+        self.assertFalse((not is_ethical_action(assailant, recipient, 'harm')),
+                         "Harm with explicit consent is not unethical")
     # end def
 
     # Self-directed interactions
@@ -528,7 +528,7 @@ class EthicsTest(unittest.TestCase):
 
         alex.do('Alex', 'action')
 
-        self.assertFalse(not is_ethical_action(alex, alex, 'action'),
+        self.assertFalse((not is_ethical_action(alex, alex, 'action')),
                          "Asking yourself for consent and getting it is " +
                          "not unethical")
     # end def
@@ -558,7 +558,7 @@ class EthicsTest(unittest.TestCase):
 
         alex.do('Alex', 'action')
 
-        self.assertFalse(not is_ethical_action(alex, alex, 'action'),
+        self.assertFalse((not is_ethical_action(alex, alex, 'action')),
                          "Asking yourself for consent and not getting it is " +
                          "not unethical")
     # end def
@@ -585,9 +585,9 @@ class EthicsTest(unittest.TestCase):
         alex.consent_requested_by('Alex', 'action')
         alex.do('Alex', 'action')
 
-        self.assertTrue((not (not is_ethical_action(alex, alex, 'action'))),
-                        "Ignoring own consent-negative responses is " +
-                        "not unethical")
+        self.assertFalse((not is_ethical_action(alex, alex, 'action')),
+                         "Ignoring own consent-negative responses is " +
+                         "not unethical")
     # end def
 # end class
 
