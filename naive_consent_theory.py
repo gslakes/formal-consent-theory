@@ -67,8 +67,12 @@ class Person:
     # end def
 
     def consents(self, personAsking, action):
+        """ This is a consent-positive model: only 'yes' counts as consent.
+            The absence of a 'no' does not grant consent.
+        """
         # type: (str, str) -> bool
-        return (personAsking, action) in self.consented
+        return (personAsking, action) in self.consented and \
+               (self.consented[(personAsking, action)])
     # end def
 
     def does_not_consent(self, personAsking, action):
@@ -213,6 +217,7 @@ class EthicsTest(unittest.TestCase):
         bo = Person('Bo')
 
         bo.consent_requested_by('Alex', 'action')
+        bo.does_not_consent('Alex', 'action')
         alex.do('Bo', 'action')
 
         self.assertFalse(is_ethical_action(alex, bo, 'action'),
@@ -227,6 +232,7 @@ class EthicsTest(unittest.TestCase):
         bo = Person('Bo')
 
         bo.consent_requested_by('Alex', 'action')
+        bo.does_not_consent('Alex', 'action')
         alex.do('Bo', 'action')
 
         self.assertFalse(is_ethical_action(alex, bo, 'action'),
