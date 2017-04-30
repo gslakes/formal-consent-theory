@@ -31,11 +31,19 @@
 # Expected output from a test suite run:
 #
 # $ ./naive_consent_theory.py
-# ..............................
+# ................................
 # ----------------------------------------------------------------------
-# Ran 30 tests in 0.001s
+# Ran 32 tests in 0.001s
 #
 # OK
+#
+#
+# WARNING: this imperative implementation is not exactly equivalent to the
+#          functional versions.
+#
+#          The test suite has small modifications to catch issues that are not
+#          present in the functional version, and you should look out for these
+#          kind of issues if you make modifications.
 
 import unittest
 
@@ -206,6 +214,40 @@ class EthicsTest(unittest.TestCase):
 
         self.assertFalse((not is_ethical_action(alex, bo, 'action')),
                          "Asking and not getting consent " +
+                         "(and not doing the act) is not unethical")
+    # end def
+
+    def test_asking_and_explicitly_not_getting_consent_is_ethical(self):
+        """Asking and explicitly not getting consent (and not doing the act)
+           is ethical
+        """
+        # type: () -> None
+
+        alex = Person('Alex')
+        bo = Person('Bo')
+
+        bo.consent_requested_by('Alex', 'action')
+        alex.does_not_consent('Bo', 'action')
+
+        self.assertTrue(is_ethical_action(alex, bo, 'action'),
+                        "Asking and explicitly not getting consent " +
+                        "(and not doing the act) is ethical")
+    # end def
+
+    def test_asking_and_explicitly_not_getting_consent_is_not_unethical(self):
+        """Asking and explicitly not getting consent (and not doing the act) is
+           not unethical
+        """
+        # type: () -> None
+
+        alex = Person('Alex')
+        bo = Person('Bo')
+
+        bo.consent_requested_by('Alex', 'action')
+        alex.does_not_consent('Bo', 'action')
+
+        self.assertFalse((not is_ethical_action(alex, bo, 'action')),
+                         "Asking and explicitly not getting consent " +
                          "(and not doing the act) is not unethical")
     # end def
 
